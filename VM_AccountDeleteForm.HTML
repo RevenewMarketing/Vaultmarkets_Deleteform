@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Account data</title>
+    <link rel="stylesheet" href="styles.css">
+
+<body>
+    <div id="formwrapper">
+        <h1><span>Delete my</span> account data</h1>
+        <!-- Data sent via https://web3forms.com   -->
+        <form id="form" method="POST">
+            <!-- Form data sent to the VM team leader for review and processing. -->
+
+            <!-- Web3Form configuration -->
+            <!-- Replace with your web3Forms Access Key -->
+            <input type="hidden" name="access_key" value="3f463ad7-b7e8-4f01-9395-1066bdddcb27">
+            <input type="hidden" name="subject" id="subject" value="Account Deletion ">
+            <script>
+                document.getElementById('cuNumber').addEventListener('input', function () {
+                    document.getElementById('subject').value = 'Account Deletion (' + this.value + ')';
+                });
+            </script>
+            <!-- Optional: Default replyto will be "email" field (if available)-->
+            <input type="hidden" name="replyto" value="jacques@revenew.marketing">
+            <!-- Optional: But Recommended: To Prevent SPAM Submission.
+            Make sure its hidden by default -->
+            <input type="checkbox" name="botcheck" class="hidden" style="display: none;">
+            <!-- hCaptcha: Recommended for Advanced Spam Protection. -->
+            <div class="h-captcha" data-captcha="true"></div>
+
+
+            <!-- form fields - Start-->
+            <label for="name">Name &amp; Surname:</label><br>
+            <input type="text" id="name" name="name" required placeholder="E.g. Ronald Tremp"><br><br>
+
+            <label for="cuNumber">CU Number:</label><br>
+            <input type="text" id="cuNumber" name="cuNumber" required placeholder="E.g. CU999999"><br><br>
+
+            <label for="email"></label>Email Address:</label><br>
+            <input type="email" id="email" name="email" required placeholder="E.g. notdonaldTrump@gmail.com"><br><br>
+
+            <label for="reason">Reason for Deletion Request:</label><br>
+            <textarea id="reason" name="reason" required placeholder="E.g. I became a US Citizen."></textarea><br><br>
+            <!-- form fields - End-->
+
+            <!-- drag to submit -->
+            <div class="slider-wrapper" id="slider">
+                <div class="slider-fill" id="sliderFill"></div>
+                <div class="slider-text" id="sliderText">Confirm account deletion</div>
+                <div class="slider-button" id="sliderBtn">&#x27A4;</div>
+            </div>
+
+            <div id="result"></div>
+        </form>
+        <!-- web3form scripts - Start -->
+        <script>
+            const form = document.getElementById('form');
+            const result = document.getElementById('result');
+
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const formData = new FormData(form);
+                const object = Object.fromEntries(formData);
+                const json = JSON.stringify(object);
+                result.innerHTML = "Please wait..."
+
+                fetch('https://api.web3forms.com/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: json
+                })
+                    .then(async (response) => {
+                        let json = await response.json();
+                        if (response.status == 200) {
+                            result.innerHTML = "Form submitted successfully";
+                        } else {
+                            console.log(response);
+                            result.innerHTML = json.message;
+                        }
+                    })
+                    .catch(error => {
+                        console.log(error);
+                        result.innerHTML = "Something went wrong!";
+                    })
+                    .then(function () {
+                        form.reset();
+                        setTimeout(() => {
+                            result.style.display = "none";
+                        }, 3000);
+                    });
+            });
+        </script>
+        <!-- recaptcha script -->
+        <script src="https://web3forms.com/client/script.js" async defer></script>
+        <!-- web3form scripts - End -->
+
+        <!-- draggable slider button submit script -->
+        <script>
+            const slider = document.getElementById("slider");
+            const sliderBtn = document.getElementById("sliderBtn");
+            const sliderFill = document.getElementById("sliderFill");
+            const sliderText = document.getElementById("sliderText");
+
+            let isDragging = false;
+            let startX;
+            let currentX;
+
+            sliderBtn.addEventListener("mousedown", (e) => {
+                isDragging = true;
+                startX = e.clientX;
+                document.body.style.userSelect = 'none';
+            });
+
+            document.addEventListener("mousemove", (e) => {
+                if (!isDragging) return;
+                currentX = e.clientX - startX;
+                const sliderWidth = slider.offsetWidth - sliderBtn.offsetWidth;
+                let moveX = Math.max(0, Math.min(currentX, sliderWidth));
+                sliderBtn.style.left = `${moveX}px`;
+                sliderFill.style.width = `${moveX + sliderBtn.offsetWidth / 2}px`;
+            });
+
+            document.addEventListener("mouseup", () => {
+                if (!isDragging) return;
+                isDragging = false;
+                const moved = parseInt(sliderBtn.style.left || 0);
+                const threshold = slider.offsetWidth - sliderBtn.offsetWidth - 10;
+                if (moved >= threshold) {
+                    slider.classList.add("submitted");
+                    sliderBtn.innerHTML = "✓";
+                    sliderText.innerText = "Confirmed!";
+                    // Submit form or trigger secure logic
+                    document.getElementById("secureForm").submit(); // auto-submit
+                } else {
+                    sliderBtn.style.left = `0px`;
+                    sliderFill.style.width = `0px`;
+                }
+                document.body.style.userSelect = '';
+            });
+        </script>
+    </div>
+</body>
+
+</html>
+
+
+<!-- COPY BRIEF:
+Please brief the following for the page
+Why the page exists
+The process to have the account deleted
+Submit the request via the form on the page
+Alternatively, and email must be sent to help@vaultmarkets.trade
+Reasons why a client would need/want their account deleted
+What happens as a result of the account being deleted
+A response that should pop-up once the request has been submitted, to show turnaround time and next steps.
+WEB DEV BRIEF:
+Please create a new page on the website containing the copy in the template
+Please add a comms submission form with the following fields:
+Name & Surname, CU Number, Email Address, Reason for Deletion Request.
+Please trigger it to be sent to a VM team leader (TBA) -->
